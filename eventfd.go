@@ -10,15 +10,11 @@ package eventfd
  * For more information on eventfd() see `man eventfd`.
  */
 
-/*
-#include <sys/eventfd.h>
-*/
-import "C"
-
 import (
-	"encoding/binary"
 	"fmt"
 	"syscall"
+
+	"github.com/virtao/GoEndian"
 )
 
 type EventFD struct {
@@ -28,8 +24,8 @@ type EventFD struct {
 
 /* Create a new EventFD. */
 func New() (*EventFD, error) {
-	fd, err := C.eventfd(0, C.EFD_CLOEXEC)
-	if err != nil {
+	fd, _, err := syscall.Syscall(syscall.SYS_EVENTFD2, 0, uintptr(syscall.O_CLOEXEC), 0)
+	if err != 0 {
 		return nil, err
 	}
 
@@ -60,12 +56,11 @@ func (e *EventFD) ReadEvents() (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-
-	val, n := binary.Uvarint(buf)
-	if n <= 0 {
-		return 0, fmt.Errorf("Invalid Read")
+	if n != 8 {
+		return 0, fmt.Errorf("could not read for eventfd")
 	}
 
+	val := endian.Endian.Uint64(buf)
 	return val, nil
 }
 
@@ -85,18 +80,14 @@ func (e *EventFD) Write(p []byte) (int, error) {
  */
 func (e *EventFD) WriteEvents(val uint64) error {
 	buf := make([]byte, 8)
-	n := binary.PutUvarint(buf, val)
-	if n != 8 {
-		return fmt.Errorf("Invalid Argument")
-	}
+	endian.Endian.PutUint64(buf, val)
 
 	n, err := syscall.Write(e.fd, buf[:])
 	if err != nil {
 		return err
 	}
-
 	if n != 8 {
-		return fmt.Errorf("Could not write to eventfd")
+		return fmt.Errorf("could not write to eventfd")
 	}
 
 	return nil
