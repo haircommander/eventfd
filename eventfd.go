@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/virtao/GoEndian"
+	"github.com/gxed/GoEndian"
 )
 
 type EventFD struct {

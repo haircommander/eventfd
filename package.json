@@ -6,6 +6,14 @@
   "gx": {
     "dvcsimport": "github.com/gxed/eventfd"
   },
+  "gxDependencies": [
+    {
+      "author": "gxed",
+      "hash": "QmeFPvhFJGXGiXAc9zunNxZjCaWgYQpcsdwip2NWLcccyw",
+      "name": "GoEndian",
+      "version": "1.0.0"
+    }
+  ],
   "gxVersion": "0.9.0",
   "language": "go",
   "license": "",
