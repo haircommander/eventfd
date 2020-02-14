@@ -36,6 +36,20 @@ func New() (*EventFD, error) {
 	return e, nil
 }
 
+/* Create a new EventFD. */
+func NewWithFlags(flags uintptr) (*EventFD, error) {
+	fd, _, err := syscall.Syscall(syscall.SYS_EVENTFD2, 0, flags, 0)
+	if err != 0 {
+		return nil, err
+	}
+
+	e := &EventFD{
+		fd:    int(fd),
+		valid: true,
+	}
+	return e, nil
+}
+
 /* Read events from Eventfd. p should be at max 8 bytes.
  * Returns the number of read bytes or 0 and error is set.
  */
